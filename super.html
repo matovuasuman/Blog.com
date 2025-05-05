@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Calculator</title>
+    <style>
+        :root {
+            --primary: #4285f4;
+            --secondary: #34a853;
+            --accent: #ea4335;
+            --light: #f8f9fa;
+            --dark: #202124;
+            --border: #dadce0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Google Sans', Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f1f3f4;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: #5f6368;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            background: white;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            min-height: 400px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Calculator Styles */
+        .calculator {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .calculator-display {
+            grid-column: span 5;
+            background-color: var(--light);
+            padding: 20px;
+            text-align: right;
+            font-size: 28px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            height: 80px;
+            overflow: auto;
+            word-break: break-all;
+        }
+
+        .calculator button {
+            padding: 15px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: white;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .calculator button:hover {
+            background-color: #f1f3f4;
+        }
+
+        .calculator button.operator {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .calculator button.operator:hover {
+            background-color: #3367d6;
+        }
+
+        .calculator button.function {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .calculator button.function:hover {
+            background-color: #2d924a;
+        }
+
+        .calculator button.equals {
+            background-color: var(--accent);
+            color: white;
+            grid-column: span 2;
+        }
+
+        .calculator button.equals:hover {
+            background-color: #d33426;
+        }
+
+        /* Unit Converter Styles */
+        .converter {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .converter-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .converter-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .converter-select {
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: white;
+            min-width: 200px;
+        }
+
+        .converter-equals {
+            font-size: 20px;
+            color: #5f6368;
+            padding: 0 10px;
+        }
+
+        /* Formula Analyzer Styles */
+        .formula-analyzer {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .formula-input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            height: 120px;
+            resize: vertical;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .formula-result {
+            background-color: var(--light);
+            padding: 20px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            min-height: 100px;
+        }
+
+        .analyze-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: background-color 0.2s;
+        }
+
+        .analyze-btn:hover {
+            background-color: #3367d6;
+        }
+
+        /* Spreadsheet Styles */
+        .spreadsheet-container {
+            overflow-x: auto;
+        }
+
+        .spreadsheet {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .spreadsheet th, .spreadsheet td {
+            border: 1px solid var(--border);
+            padding: 10px;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .spreadsheet th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+        }
+
+        .spreadsheet th:first-child {
+            background-color: #5f6368;
+        }
+
+        .spreadsheet input {
+            width: 100%;
+            border: none;
+            padding: 8px;
+            text-align: center;
+            background: transparent;
+        }
+
+        .spreadsheet input:focus {
+            outline: 2px solid var(--primary);
+            border-radius: 4px;
+        }
+
+        .spreadsheet-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .spreadsheet-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .spreadsheet-btn:hover {
+            background-color: #3367d6;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .calculator {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .calculator button.function {
+                font-size: 14px;
+                padding: 12px;
+            }
+
+            .converter-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .converter-equals {
+                display: none;
+            }
+
+            .tab {
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Super Calculator</h1>
+            <p>All-in-one calculator with advanced features</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" onclick="openTab('calculator')">Calculator</button>
+            <button class="tab" onclick="openTab('converter')">Unit Converter</button>
+            <button class="tab" onclick="openTab('formula')">Formula Analyzer</button>
+            <button class="tab" onclick="openTab('excel')">Spreadsheet</button>
+        </div>
+
+        <!-- Calculator Tab -->
+        <div id="calculator" class="tab-content active">
+            <div class="calculator">
+                <div class="calculator-display" id="calc-display">0</div>
+
+                <button onclick="clearDisplay()">C</button>
+                <button onclick="backspace()">⌫</button>
+                <button onclick="percentage()">%</button>
+                <button class="operator" onclick="appendOperator('/')">/</button>
+                <button class="function" onclick="appendFunction('sqrt(')">√</button>
+
+                <button class="function" onclick="appendFunction('sin(')">sin</button>
+                <button class="function" onclick="appendFunction('cos(')">cos</button>
+                <button class="function" onclick="appendFunction('tan(')">tan</button>
+                <button class="operator" onclick="appendOperator('*')">×</button>
+                <button class="function" onclick="appendFunction('log(')">log</button>
+
+                <button class="function" onclick="appendFunction('asin(')">sin⁻¹</button>
+                <button class="function" onclick="appendFunction('acos(')">cos⁻¹</button>
+                <button class="function" onclick="appendFunction('atan(')">tan⁻¹</button>
+                <button class="operator" onclick="appendOperator('-')">-</button>
+                <button class="function" onclick="appendFunction('ln(')">ln</button>
+
+                <button onclick="appendNumber('7')">7</button>
+                <button onclick="appendNumber('8')">8</button>
+                <button onclick="appendNumber('9')">9</button>
+                <button class="operator" onclick="appendOperator('+')">+</button>
+                <button class="function" onclick="appendFunction('pi')">π</button>
+
+                <button onclick="appendNumber('4')">4</button>
+                <button onclick="appendNumber('5')">5</button>
+                <button onclick="appendNumber('6')">6</button>
+                <button class="function" onclick="appendFunction('e')">e</button>
+                <button class="function" onclick="appendFunction('^')">^</button>
+
+                <button onclick="appendNumber('1')">1</button>
+                <button onclick="appendNumber('2')">2</button>
+                <button onclick="appendNumber('3')">3</button>
+                <button class="function" onclick="appendFunction('(')">(</button>
+                <button class="function" onclick="appendFunction(')')">)</button>
+
+                <button onclick="appendNumber('0')">0</button>
+                <button onclick="appendDecimal()">.</button>
+                <button class="function" onclick="appendFunction('fact(')">n!</button>
+                <button class="equals" onclick="calculate()">=</button>
+            </div>
+        </div>
+
+        <!-- Unit Converter Tab -->
+        <div id="converter" class="tab-content">
+            <div class="converter">
+                <div class="converter-row">
+                    <select id="conversion-type" class="converter-select" onchange="updateConversionUnits()">
+                        <option value="length">Length</option>
+                        <option value="area">Area</option>
+                        <option value="volume">Volume</option>
+                        <option value="mass">Mass</option>
+                        <option value="temperature">Temperature</option>
+                        <option value="speed">Speed</option>
+                        <option value="time">Time</option>
+                        <option value="digital">Digital Storage</option>
+                        <option value="angle">Angle</option>
+                        <option value="pressure">Pressure</option>
+                        <option value="energy">Energy</option>
+                    </select>
+                </div>
+
+                <div class="converter-row">
+                    <input type="number" id="from-value" class="converter-input" value="1" oninput="convertUnits()">
+                    <select id="from-unit" class="converter-select" onchange="convertUnits()"></select>
+                    <span class="converter-equals">=</span>
+                    <input type="number" id="to-value" class="converter-input" readonly>
+                    <select id="to-unit" class="converter-select" onchange="convertUnits()"></select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formula Analyzer Tab -->
+        <div id="formula" class="tab-content">
+            <div class="formula-analyzer">
+                <textarea id="formula-input" class="formula-input" placeholder="Enter your formula here (e.g., 2*sin(pi/4) + sqrt(9), log(100), 5^3)"></textarea>
+                <button class="analyze-btn" onclick="analyzeFormula()">Analyze Formula</button>
+                <div class="formula-result" id="formula-result">
+                    Results will appear here...
+                </div>
+            </div>
+        </div>
+
+        <!-- Spreadsheet Tab -->
+        <div id="excel" class="tab-content">
+            <div class="spreadsheet-container">
+                <div class="spreadsheet-controls">
+                    <button class="spreadsheet-btn" onclick="addRow()">Add Row</button>
+                    <button class="spreadsheet-btn" onclick="addColumn()">Add Column</button>
+                    <button class="spreadsheet-btn" onclick="clearSpreadsheet()">Clear Sheet</button>
+                </div>
+
+                <table class="spreadsheet" id="spreadsheet">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>A</th>
+                            <th>B</th>
+                            <th>C</th>
+                            <th>D</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th>1</th>
+                            <td><input type="text" onchange="updateCell(0, 0, this.value)"></td>
+                            <td><input type="text" onchange="updateCell(0, 1, this.value)"></td>
+                            <td><input type="text" onchange="updateCell(0, 2, this.value)"></td>
+                            <td><input type="text" onchange="updateCell(0, 3, this.value)"></td>
+                        </tr>
+                        <tr>
+                            <th>2</th>
+                            <td><input type="text" onchange="updateCell(1, 0, this.value)"></td>
+                            <td><input type="text" onchange="updateCell(1, 1, this.value)"></td>
+                            <td><input type="text" onchange="updateCell(1, 2, this.value)"></td>
+                            <td><input type="text" onchange="updateCell(1, 3, this.value)"></td>
+                        </tr>
+                        <tr>
+                            <th>3</th>
+                            <td><input type="text" onchange="updateCell(2, 0, this.value)"></td>
+                            <td><input type="text" onchange="updateCell(2, 1, this.value)"></td>
+                            <td><input type="text" onchange="updateCell(2, 2, this.value)"></td>
+                            <td><input type="text" onchange="updateCell(2, 3, this.value)"></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 30px;">
+                    <h3>Spreadsheet Formulas Guide</h3>
+                    <p>You can use Excel-like formulas in any cell by starting with "=":</p>
+                    <ul>
+                        <li><strong>Basic Math:</strong> =A1+B1, =A1-B1, =A1*B1, =A1/B1</li>
+                        <li><strong>Functions:</strong> =SUM(A1:A3), =AVG(B1:B3), =MAX(C1:C3), =MIN(D1:D3)</li>
+                        <li><strong>Advanced:</strong> =SQRT(A1), =POWER(B1,2), =SIN(C1*PI()/180)</li>
+                        <li><strong>References:</strong> Use column letters (A-Z) and row numbers (1+)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+// Tab functionality
+function openTab(tabName) {
+    const tabs = document.getElementsByClassName('tab-content');
+    for (let i = 0; i < tabs.length; i++) {
+        tabs[i].classList.remove('active');
+    }
+
+    const tabButtons = document.getElementsByClassName('tab');
+    for (let i = 0; i < tabButtons.length; i++) {
+        tabButtons[i].classList.remove('active');
+    }
+
+    document.getElementById(tabName).classList.add('active');
+    event.currentTarget.classList.add('active');
+}
+
+// Calculator functionality
+let currentDisplay = '0';
+const display = document.getElementById('calc-display');
+
+function updateDisplay() {
+    display.textContent = currentDisplay;
+}
+
+function appendNumber(number) {
+    if (currentDisplay === '0' && number !== '0') {
+        currentDisplay = number;
+    } else if (currentDisplay !== '0') {
+        currentDisplay += number;
+    }
+    updateDisplay();
+}
+
+function appendDecimal() {
+    if (!currentDisplay.includes('.')) {
+        currentDisplay += '.';
+        updateDisplay();
+    }
+}
+
+function appendOperator(operator) {
+    const lastChar = currentDisplay[currentDisplay.length - 1];
+    const operators = ['+', '-', '*', '/', '^'];
+
+    if (operators.includes(lastChar)) {
+        currentDisplay = currentDisplay.slice(0, -1) + operator;
+    } else {
+        currentDisplay += operator;
+    }
+    updateDisplay();
+}
+
+function appendFunction(func) {
+    if (func === 'pi') {
+        currentDisplay += Math.PI.toString();
+    } else if (func === 'e') {
+        currentDisplay += Math.E.toString();
+    } else if (func === '^') {
+        currentDisplay += '^';
+    } else {
+        currentDisplay += func;
+    }
+    updateDisplay();
+}
+
+function clearDisplay() {
+    currentDisplay = '0';
+    updateDisplay();
+}
+
+function backspace() {
+    if (currentDisplay.length === 1) {
+        currentDisplay = '0';
+    } else {
+        currentDisplay = currentDisplay.slice(0, -1);
+    }
+    updateDisplay();
+}
+
+function percentage() {
+    currentDisplay = (parseFloat(currentDisplay) / 100).toString();
+    updateDisplay();
+}
+
+function calculate() {
+    try {
+        // Replace mathematical functions and constants
+        let expression = currentDisplay
+            .replace(/sin\(/g, 'Math.sin(')
+            .replace(/cos\(/g, 'Math.cos(')
+            .replace(/tan\(/g, 'Math.tan(')
+            .replace(/asin\(/g, 'Math.asin(')
+            .replace(/acos\(/g, 'Math.acos(')
+            .replace(/atan\(/g, 'Math.atan(')
+            .replace(/sqrt\(/g, 'Math.sqrt(')
+            .replace(/log\(/g, 'Math.log10(')
+            .replace(/ln\(/g, 'Math.log(')
+            .replace(/fact\(/g, 'factorial(')
+            .replace(/pi/g, 'Math.PI')
+            .replace(/e/g, 'Math.E')
+            .replace(/\^/g, '**');
+
+        // Evaluate the expression
+        const result = eval(expression);
+        currentDisplay = result.toString();
+        updateDisplay();
+    } catch (error) {
+        currentDisplay = 'Error';
+        updateDisplay();
+        setTimeout(clearDisplay, 1500);
+    }
+}
+
+// Factorial function
+function factorial(n) {
+    if (n < 0) return NaN;
+    if (n === 0 || n === 1) return 1;
+    let result = 1;
+    for (let i = 2; i <= n; i++) {
+        result *= i;
+    }
+    return result;
+}
+
+// Unit Converter functionality
+const conversionUnits = {
+    length: [
+        { name: 'Meter', value: 1 },
+        { name: 'Kilometer', value: 1000 },
+        { name: 'Centimeter', value: 0.01 },
+        { name: 'Millimeter', value: 0.001 },
+        { name: 'Mile', value: 1609.344 },
+        { name: 'Yard', value: 0.9144 },
+        { name: 'Foot', value: 0.3048 },
+        { name: 'Inch', value: 0.0254 }
+    ],
+    area: [
+        { name: 'Square Meter', value: 1 },
+        { name: 'Square Kilometer', value: 1000000 },
+        { name: 'Square Centimeter', value: 0.0001 },
+        { name: 'Square Millimeter', value: 0.000001 },
+        { name: 'Square Mile', value: 2589988.11 },
+        { name: 'Square Yard', value: 0.83612736 },
+        { name: 'Square Foot', value: 0.09290304 },
+        { name: 'Square Inch', value: 0.00064516 },
+        { name: 'Acre', value: 4046.8564224 },
+        { name: 'Hectare', value: 10000 }
+    ],
+    volume: [
+        { name: 'Liter', value: 1 },
+        { name: 'Milliliter', value: 0.001 },
+        { name: 'Cubic Meter', value: 1000 },
+        { name: 'Cubic Centimeter', value: 0.001 },
+        { name: 'Cubic Foot', value: 28.316846592 },
+        { name: 'Cubic Inch', value: 0.016387064 },
+        { name: 'Gallon (US)', value: 3.785411784 },
+        { name: 'Gallon (UK)', value: 4.54609 },
+        { name: 'Quart (US)', value: 0.946352946 },
+        { name: 'Pint (US)', value: 0.473176473 }
+    ],
+    mass: [
+        { name: 'Kilogram', value: 1 },
+        { name: 'Gram', value: 0.001 },
+        { name: 'Milligram', value: 0.000001 },
+        { name: 'Metric Ton', value: 1000 },
+        { name: 'Pound', value: 0.45359237 },
+        { name: 'Ounce', value: 0.028349523125 },
+        { name: 'Stone', value: 6.35029318 }
+    ],
+    temperature: [
+        { name: 'Celsius', value: 'celsius' },
+        { name: 'Fahrenheit', value: 'fahrenheit' },
+        { name: 'Kelvin', value: 'kelvin' }
+    ],
+    speed: [
+        { name: 'Meter per second', value: 1 },
+        { name: 'Kilometer per hour', value: 0.277778 },
+        { name: 'Mile per hour', value: 0.44704 },
+        { name: 'Knot', value: 0.514444 },
+        { name: 'Foot per second', value: 0.3048 }
+    ],
+    time: [
+        { name: 'Second', value: 1 },
+        { name: 'Millisecond', value: 0.001 },
+        { name: 'Minute', value: 60 },
+        { name: 'Hour', value: 3600 },
+        { name: 'Day', value: 86400 },
+        { name: 'Week', value: 604800 },
+        { name: 'Month', value: 2628000 },
+        { name: 'Year', value: 31536000 }
+    ],
+    digital: [
+        { name: 'Bit', value: 0.125 },
+        { name: 'Byte', value: 1 },
+        { name: 'Kilobyte', value: 1024 },
+        { name: 'Megabyte', value: 1048576 },
+        { name: 'Gigabyte', value: 1073741824 },
+        { name: 'Terabyte', value: 1099511627776 },
+        { name: 'Petabyte', value: 1125899906842624 }
+    ],
+    angle: [
+        { name: 'Degree', value: 1 },
+        { name: 'Radian', value: 57.2958 },
+        { name: 'Gradian', value: 0.9 }
+    ],
+    pressure: [
+        { name: 'Pascal', value: 1 },
+        { name: 'Kilopascal', value: 1000 },
+        { name: 'Megapascal', value: 1000000 },
+        { name: 'Bar', value: 100000 },
+        { name: 'PSI', value: 6894.76 },
+        { name: 'Atmosphere', value: 101325 }
+    ],
+    energy: [
+        { name: 'Joule', value: 1 },
+        { name: 'Kilojoule', value: 1000 },
+        { name: 'Calorie', value: 4.184 },
+        { name: 'Kilocalorie', value: 4184 },
+        { name: 'Watt-hour', value: 3600 },
+        { name: 'Kilowatt-hour', value: 3600000 },
+        { name: 'Electronvolt', value: 1.60218e-19 }
+    ]
+};
+
+function updateConversionUnits() {
+    const type = document.getElementById('conversion-type').value;
+    const fromUnit = document.getElementById('from-unit');
+    const toUnit = document.getElementById('to-unit');
+
+    // Clear existing options
+    fromUnit.innerHTML = '';
+    toUnit.innerHTML = '';
+
+    // Add new options
+    conversionUnits[type].forEach(unit => {
+        const option1 = document.createElement('option');
+        option1.value = unit.value;
+        option1.textContent = unit.name;
+        fromUnit.appendChild(option1);
+
+        const option2 = document.createElement('option');
+        option2.value = unit.value;
+        option2.textContent = unit.name;
+        toUnit.appendChild(option2);
+    });
+
+    // Set default "to" unit to the second option
+    if (conversionUnits[type].length > 1) {
+        toUnit.selectedIndex = 1;
+    }
+
+    convertUnits();
+}
+
+function convertUnits() {
+    const type = document.getElementById('conversion-type').value;
+    const fromValue = parseFloat(document.getElementById('from-value').value);
+    const fromUnit = document.getElementById('from-unit').value;
+    const toUnit = document.getElementById('to-unit').value;
+    const toValue = document.getElementById('to-value');
+
+    if (isNaN(fromValue)) {
+        toValue.value = '';
+        return;
+    }
+
+    if (type === 'temperature') {
+        // Special handling for temperature
+        const result = convertTemperature(fromValue, fromUnit, toUnit);
+        toValue.value = result.toFixed(6);
+    } else {
+        // Standard conversion for other units
+        const baseValue = fromValue * parseFloat(fromUnit);
+        const result = baseValue / parseFloat(toUnit);
+        toValue.value = result.toFixed(6);
+    }
+}
+
+function convertTemperature(value, fromUnit, toUnit) {
+    // Convert to Celsius first
+    let celsius;
+    switch (fromUnit) {
+        case 'celsius':
+            celsius = value;
+            break;
+        case 'fahrenheit':
+            celsius = (value - 32) * 5 / 9;
+            break;
+        case 'kelvin':
+            celsius = value - 273.15;
+            break;
+    }
+
+    // Convert from Celsius to target unit
+    switch (toUnit) {
+        case 'celsius':
+            return celsius;
+        case 'fahrenheit':
+            return celsius * 9 / 5 + 32;
+        case 'kelvin':
+            return celsius + 273.15;
+    }
+}
+
+// Formula Analyzer functionality
+function analyzeFormula() {
+    const formulaInput = document.getElementById('formula-input').value;
+    const formulaResult = document.getElementById('formula-result');
+
+    if (!formulaInput) {
+        formulaResult.textContent = 'Please enter a formula to analyze';
+        return;
+    }
+
+    try {
+        // Replace mathematical functions and constants
+        let expression = formulaInput
+            .replace(/sin\(/g, 'Math.sin(')
+            .replace(/cos\(/g, 'Math.cos(')
+            .replace(/tan\(/g, 'Math.tan(')
+            .replace(/asin\(/g, 'Math.asin(')
+            .replace(/acos\(/g, 'Math.acos(')
+            .replace(/atan\(/g, 'Math.atan(')
+            .replace(/sqrt\(/g, 'Math.sqrt(')
+            .replace(/log\(/g, 'Math.log10(')
+            .replace(/ln\(/g, 'Math.log(')
+            .replace(/fact\(/g, 'factorial(')
+            .replace(/pi/g, 'Math.PI')
+            .replace(/e/g, 'Math.E')
+            .replace(/\^/g, '**');
+
+        // Evaluate the expression
+        const result = eval(expression);
+
+        // Display the result with analysis
+        formulaResult.innerHTML = `
+            <p><strong>Result:</strong> ${result}</p>
+            <p><strong>Formula Breakdown:</strong></p>
+            <p>${formulaInput} = ${result}</p>
+            <p><strong>Type:</strong> ${typeof result}</p>
+            <p><strong>Evaluated Expression:</strong> ${expression}</p>
+        `;
+    } catch (error) {
+        formulaResult.textContent = `Error: ${error.message}`;
+    }
+}
+// Spreadsheet functionality
+let spreadsheetData = [
+    ['', '', '', ''],
+    ['', '', '', ''],
+    ['', '', '', '']
+];
+
+// Update cell data when input changes
+function updateCell(row, col, value) {
+    spreadsheetData[row][col] = value;
+    evaluateSpreadsheet();
+}
+
+// Evaluate all formulas in the spreadsheet
+function evaluateSpreadsheet() {
+    const table = document.getElementById('spreadsheet');
+    const rows = table.getElementsByTagName('tr');
+
+    for (let i = 1; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        for (let j = 1; j < cells.length; j++) {
+            const input = cells[j].getElementsByTagName('input')[0];
+            const row = i - 1;
+            const col = j - 1;
+
+            if (input.value.startsWith('=')) {
+                try {
+                    // Replace cell references with their values
+                    let formula = input.value.substring(1);
+                    formula = formula.replace(/([A-Z])(\d+)/g, function(match, colChar, rowNum) {
+                        const refCol = colChar.charCodeAt(0) - 65;
+                        const refRow = parseInt(rowNum) - 1;
+                        return spreadsheetData[refRow][refCol] || 0;
+                    });
+
+                    // Replace functions
+                    formula = formula
+                        .replace(/SUM\(([A-Z]\d+):([A-Z]\d+)\)/g, function(match, start, end) {
+                            const startCol = start.charCodeAt(0) - 65;
+                            const startRow = parseInt(start.substring(1)) - 1;
+                            const endCol = end.charCodeAt(0) - 65;
+                            const endRow = parseInt(end.substring(1)) - 1;
+
+                            let sum = 0;
+                            for (let r = startRow; r <= endRow; r++) {
+                                for (let c = startCol; c <= endCol; c++) {
+                                    sum += parseFloat(spreadsheetData[r][c]) || 0;
+                                }
+                            }
+                            return sum;
+                        })
+                        .replace(/AVG\(([A-Z]\d+):([A-Z]\d+)\)/g, function(match, start, end) {
+                            const startCol = start.charCodeAt(0) - 65;
+                            const startRow = parseInt(start.substring(1)) - 1;
+                            const endCol = end.charCodeAt(0) - 65;
+                            const endRow = parseInt(end.substring(1)) - 1;
+
+                            let sum = 0;
+                            let count = 0;
+                            for (let r = startRow; r <= endRow; r++) {
+                                for (let c = startCol; c <= endCol; c++) {
+                                    sum += parseFloat(spreadsheetData[r][c]) || 0;
+                                    count++;
+                                }
+                            }
+                            return count > 0 ? sum / count : 0;
+                        })
+                        .replace(/MAX\(([A-Z]\d+):([A-Z]\d+)\)/g, function(match, start, end) {
+                            const startCol = start.charCodeAt(0) - 65;
+                            const startRow = parseInt(start.substring(1)) - 1;
+                            const endCol = end.charCodeAt(0) - 65;
+                            const endRow = parseInt(end.substring(1)) - 1;
+
+                            let max = -Infinity;
+                            for (let r = startRow; r <= endRow; r++) {
+                                for (let c = startCol; c <= endCol; c++) {
+                                    const val = parseFloat(spreadsheetData[r][c]);
+                                    if (!isNaN(val) && val > max) {
+                                        max = val;
+                                    }
+                                }
+                            }
+                            return max !== -Infinity ? max : 0;
+                        })
+                        .replace(/MIN\(([A-Z]\d+):([A-Z]\d+)\)/g, function(match, start, end) {
+                            const startCol = start.charCodeAt(0) - 65;
+                            const startRow = parseInt(start.substring(1)) - 1;
+                            const endCol = end.charCodeAt(0) - 65;
+                            const endRow = parseInt(end.substring(1)) - 1;
+
+                            let min = Infinity;
+                            for (let r = startRow; r <= endRow; r++) {
+                                for (let c = startCol; c <= endCol; c++) {
+                                    const val = parseFloat(spreadsheetData[r][c]);
+                                    if (!isNaN(val) && val < min) {
+                                        min = val;
+                                    }
+                                }
+                            }
+                            return min !== Infinity ? min : 0;
+                        })
+                        .replace(/SQRT\(([A-Z]\d+)\)/g, function(match, cell) {
+                            const col = cell.charCodeAt(0) - 65;
+                            const row = parseInt(cell.substring(1)) - 1;
+                            return Math.sqrt(parseFloat(spreadsheetData[row][col]) || 0);
+                        })
+                        .replace(/POWER\(([A-Z]\d+),\s*(\d+)\)/g, function(match, cell, power) {
+                            const col = cell.charCodeAt(0) - 65;
+                            const row = parseInt(cell.substring(1)) - 1;
+                            return Math.pow(parseFloat(spreadsheetData[row][col]) || 0, parseInt(power));
+                        })
+                        .replace(/SIN\(([A-Z]\d+)\)/g, function(match, cell) {
+                            const col = cell.charCodeAt(0) - 65;
+                            const row = parseInt(cell.substring(1)) - 1;
+                            return Math.sin(parseFloat(spreadsheetData[row][col]) || 0);
+                        })
+                        .replace(/COS\(([A-Z]\d+)\)/g, function(match, cell) {
+                            const col = cell.charCodeAt(0) - 65;
+                            const row = parseInt(cell.substring(1)) - 1;
+                            return Math.cos(parseFloat(spreadsheetData[row][col]) || 0);
+                        })
+                        .replace(/TAN\(([A-Z]\d+)\)/g, function(match, cell) {
+                            const col = cell.charCodeAt(0) - 65;
+                            const row = parseInt(cell.substring(1)) - 1;
+                            return Math.tan(parseFloat(spreadsheetData[row][col]) || 0);
+                        })
+                        .replace(/\^/g, '**');
+
+                    // Evaluate the formula
+                    const result = eval(formula);
+                    spreadsheetData[row][col] = result;
+                    input.value = result;
+                } catch (error) {
+                    spreadsheetData[row][col] = '#ERROR';
+                    input.value = '#ERROR';
+                }
+            } else {
+                spreadsheetData[row][col] = input.value;
+            }
+        }
+    }
+}
+
+// Add a new row to the spreadsheet
+function addRow() {
+    const table = document.getElementById('spreadsheet');
+    const tbody = table.getElementsByTagName('tbody')[0];
+    const newRow = document.createElement('tr');
+    const rowCount = tbody.getElementsByTagName('tr').length + 1;
+
+    // Add row header
+    const th = document.createElement('th');
+    th.textContent = rowCount;
+    newRow.appendChild(th);
+
+    // Add cells
+    const colCount = table.getElementsByTagName('th').length - 1;
+    for (let i = 0; i < colCount; i++) {
+        const td = document.createElement('td');
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.setAttribute('onchange', `updateCell(${rowCount - 1}, ${i}, this.value)`);
+        td.appendChild(input);
+        newRow.appendChild(td);
+
+        // Initialize data
+        if (!spreadsheetData[rowCount - 1]) {
+            spreadsheetData[rowCount - 1] = [];
+        }
+        spreadsheetData[rowCount - 1][i] = '';
+    }
+
+    tbody.appendChild(newRow);
+}
+
+// Add a new column to the spreadsheet
+function addColumn() {
+    const table = document.getElementById('spreadsheet');
+    const thead = table.getElementsByTagName('thead')[0];
+    const tbody = table.getElementsByTagName('tbody')[0];
+    const rows = tbody.getElementsByTagName('tr');
+    const colCount = thead.getElementsByTagName('th').length;
+    const colChar = String.fromCharCode(64 + colCount);
+
+    // Add column header
+    const th = document.createElement('th');
+    th.textContent = colChar;
+    thead.getElementsByTagName('tr')[0].appendChild(th);
+
+    // Add cells to each row
+    for (let i = 0; i < rows.length; i++) {
+        const td = document.createElement('td');
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.setAttribute('onchange', `updateCell(${i}, ${colCount - 1}, this.value)`);
+        td.appendChild(input);
+        rows[i].appendChild(td);
+
+        // Initialize data
+        spreadsheetData[i][colCount - 1] = '';
+    }
+}
+
+// Clear the entire spreadsheet
+function clearSpreadsheet() {
+    const table = document.getElementById('spreadsheet');
+    const inputs = table.getElementsByTagName('input');
+
+    // Clear all input values
+    for (let i = 0; i < inputs.length; i++) {
+        inputs[i].value = '';
+    }
+
+    // Reset data array
+    spreadsheetData = [
+        ['', '', '', ''],
+        ['', '', '', ''],
+        ['', '', '', '']
+    ];
+
+    // Reset to initial 4 columns if more were added
+    const headerRow = table.getElementsByTagName('thead')[0].getElementsByTagName('tr')[0];
+    while (headerRow.children.length > 5) { // Keep A-D and row header
+        headerRow.removeChild(headerRow.lastChild);
+    }
+
+    // Reset to initial 3 rows if more were added
+    const tbody = table.getElementsByTagName('tbody')[0];
+    while (tbody.children.length > 3) {
+        tbody.removeChild(tbody.lastChild);
+    }
+}
+
+// Initialize the spreadsheet when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Set up event listeners for spreadsheet controls
+    document.querySelector('.spreadsheet-btn[onclick="addRow()"]').addEventListener('click', addRow);
+    document.querySelector('.spreadsheet-btn[onclick="addColumn()"]').addEventListener('click', addColumn);
+    document.querySelector('.spreadsheet-btn[onclick="clearSpreadsheet()"]').addEventListener('click', clearSpreadsheet);
+});
+</script>
+</body>
+</html>
